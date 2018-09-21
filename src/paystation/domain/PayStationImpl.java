@@ -1,4 +1,6 @@
 package paystation.domain;
+import java.util.*;
+
 
 /**
  * Implementation of the pay station.
@@ -23,6 +25,7 @@ public class PayStationImpl implements PayStation {
     
     private int insertedSoFar;
     private int timeBought;
+    public Map<Integer, Integer> coinsInserted = new HashMap<Integer, Integer>();
 
     @Override
     public void addPayment(int coinValue)
@@ -36,6 +39,12 @@ public class PayStationImpl implements PayStation {
         }
         insertedSoFar += coinValue;
         timeBought = insertedSoFar / 5 * 2;
+        if (coinsInserted.containsKey(coinValue)){
+            coinsInserted.put(coinValue, coinsInserted.get(coinValue) + 1);
+        }
+        else{
+            coinsInserted.put(coinValue, 1);
+        }
     }
 
     @Override
@@ -51,11 +60,26 @@ public class PayStationImpl implements PayStation {
     }
 
     @Override
-    public void cancel() {
+    public Map<Integer, Integer> cancel() {
+        Map<Integer, Integer> mapBeforeCancel = new HashMap<Integer, Integer>();
+        mapBeforeCancel.putAll(coinsInserted);
         reset();
+        return mapBeforeCancel;
     }
     
     private void reset() {
         timeBought = insertedSoFar = 0;
+        coinsInserted.clear();
     }
+    
+    public int empty(){
+        int totalAmountSinceLastCall = insertedSoFar;
+        insertedSoFar = 0;
+        return totalAmountSinceLastCall;
+    }
+    
+    public Map<Integer, Integer> returnPayStationMap() {
+        return coinsInserted;
+    }
+    
 }

@@ -11,6 +11,7 @@
  */
 package paystation.domain;
 
+import java.util.HashMap;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -138,4 +139,73 @@ public class PayStationImplTest {
         assertEquals("Insert after cancel should work",
                 10, ps.readDisplay());
     }
+    
+    @Test
+    public void emptyReturnsTotalAmountEntered()
+            throws IllegalCoinException {
+        ps.addPayment(10);
+        ps.addPayment(10);
+        assert(ps.empty() == 20);
+    }
+    
+    @Test
+    public void canceledEntryDoesNotAddToTotalAmount()
+            throws IllegalCoinException {
+        ps.addPayment(10);
+        ps.addPayment(10);
+        ps.cancel();
+        assert(ps.empty() == 0);
+    }
+    
+    @Test
+    public void callToEmptySetsTotalToZero()
+            throws IllegalCoinException {
+        ps.addPayment(10);
+        ps.addPayment(10);
+        ps.empty();
+        assert(ps.empty() == 0);
+    }
+    
+    @Test
+    public void callToCancelReturnsMapWithOneCoinEntered()
+            throws IllegalCoinException {
+        ps.addPayment(10);
+        assert(ps.cancel().size() == 1);
+    }
+    
+    @Test
+    public void callToCancelReturnsMapWithCoinMixtureEntered()
+            throws IllegalCoinException {
+        ps.addPayment(10);
+        ps.addPayment(25);
+        assert(ps.cancel().size() == 2);
+    }
+    
+    @Test
+    public void callToCancelReturnsNoKeyForACoinNotEntered()
+            throws IllegalCoinException {
+        ps.addPayment(10);
+        ps.addPayment(25);
+        assert(ps.cancel().containsKey(5) == false);
+    }
+    
+    @Test
+    public void callToCancelClearsMap()
+            throws IllegalCoinException {
+        ps.addPayment(10);
+        ps.addPayment(25);
+        ps.cancel();
+        assert(ps.returnPayStationMap().size() == 0); //indicates no keys value pairings are in the map (aka map is cleared)
+    }
+    
+    @Test
+    public void callToBuyClearsMap()
+            throws IllegalCoinException {
+        ps.addPayment(10);
+        ps.addPayment(25);
+        ps.buy();
+        assert(ps.returnPayStationMap().size() == 0); //indicates no keys value pairings are in the map (aka map is cleared)
+    }
+
+    
 }
